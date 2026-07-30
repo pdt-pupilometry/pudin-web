@@ -120,6 +120,10 @@ section{padding-block:clamp(40px,6.5vw,88px);border-top:1px solid var(--hair);
 @media(max-width:1000px){.narrow-only{display:block}}
 
 /* panel de segmentación */
+.diagram{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:clamp(26px,3.5vw,44px);
+  scrollbar-width:thin;scrollbar-color:var(--ir) var(--recess)}
+.diagram svg{display:block;width:100%;min-width:820px;height:auto}
+.diagram .caption{margin-top:.7rem}
 .panel-fig{margin:0}
 .panel-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--hair);background:var(--recess);
   scrollbar-width:thin;scrollbar-color:var(--ir) var(--recess)}
@@ -439,6 +443,99 @@ footer .eyebrow{line-height:1.9}
       <p class="eyebrow">La ruta del video · pdt-pupilometry/AWS_fluxx</p>
       <h2 class="h2">De archivo a serie de tiempo</h2>
       <p class="narrow" style="margin-top:1rem">Cinco etapas, todo por eventos, todo serverless. Un <span class="res">.mp4</span> en el bucket es una ejecución completa; sin videos, la cuenta no gasta nada.</p>
+    </div>
+
+    <p class="scroll-hint narrow-only">Diagrama ancho — deslizá para recorrerlo →</p>
+    <div class="diagram rv">
+      <svg viewBox="0 0 1000 322" role="img" aria-label="Arquitectura v2: las Raspberry Pi suben el video a S3, EventBridge dispara una ejecución de Step Functions con tres etapas — ExtractFrames, SegmentFrames como Distributed Map y AggregateAndNotify — que se apoyan en S3 y terminan notificando a un endpoint externo">
+        <defs>
+          <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0.5 L7.5,4 L0,7.5 z" fill="var(--slate)"/>
+          </marker>
+          <marker id="arIr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+            <path d="M0,0.5 L7.5,4 L0,7.5 z" fill="var(--ir)"/>
+          </marker>
+        </defs>
+        <g font-family="IBM Plex Mono, monospace" fill="var(--ink)">
+
+          <!-- captura -->
+          <rect x="6" y="96" width="112" height="56" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.2"/>
+          <text x="62" y="118" font-size="10.5" font-weight="600" text-anchor="middle">2 × RPi</text>
+          <text x="62" y="134" font-size="8" letter-spacing=".08em" fill="var(--slate)" text-anchor="middle">UNO POR OJO</text>
+
+          <line x1="120" y1="124" x2="156" y2="124" stroke="var(--slate)" stroke-width="1.2" marker-end="url(#ar)"/>
+          <text x="138" y="114" font-size="7.5" letter-spacing=".1em" fill="var(--slate)" text-anchor="middle">.MP4</text>
+
+          <!-- bucket videos -->
+          <rect x="158" y="96" width="96" height="56" fill="var(--ir-wash)" stroke="var(--ir)" stroke-width="1.2"/>
+          <text x="206" y="118" font-size="10.5" font-weight="600" fill="var(--ir)" text-anchor="middle">S3</text>
+          <text x="206" y="134" font-size="8" letter-spacing=".08em" fill="var(--slate)" text-anchor="middle">VIDEOS</text>
+
+          <line x1="256" y1="124" x2="296" y2="124" stroke="var(--slate)" stroke-width="1.2" marker-end="url(#ar)"/>
+          <text x="276" y="114" font-size="7.5" letter-spacing=".1em" fill="var(--slate)" text-anchor="middle">EVENTO</text>
+
+          <!-- eventbridge -->
+          <rect x="298" y="96" width="104" height="56" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.2"/>
+          <text x="350" y="118" font-size="10" font-weight="600" text-anchor="middle">EventBridge</text>
+          <text x="350" y="134" font-size="8" letter-spacing=".08em" fill="var(--slate)" text-anchor="middle">SUFIJO .MP4</text>
+
+          <line x1="404" y1="124" x2="430" y2="124" stroke="var(--slate)" stroke-width="1.2" marker-end="url(#ar)"/>
+
+          <!-- step functions -->
+          <rect x="432" y="46" width="404" height="156" fill="none" stroke="var(--ir)" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <text x="440" y="38" font-size="8.5" letter-spacing=".14em" fill="var(--ir)">STEP FUNCTIONS — UNA EJECUCIÓN POR VIDEO</text>
+
+          <rect x="444" y="80" width="118" height="76" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.2"/>
+          <text x="503" y="104" font-size="9.5" font-weight="600" text-anchor="middle">ExtractFrames</text>
+          <text x="503" y="121" font-size="7.5" fill="var(--slate)" text-anchor="middle">gris · 480×640</text>
+          <text x="503" y="134" font-size="7.5" fill="var(--slate)" text-anchor="middle">JPEG q90</text>
+
+          <line x1="564" y1="118" x2="580" y2="118" stroke="var(--slate)" stroke-width="1.2" marker-end="url(#ar)"/>
+
+          <rect x="582" y="80" width="118" height="76" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.2"/>
+          <text x="641" y="104" font-size="9.5" font-weight="600" text-anchor="middle">SegmentFrames</text>
+          <text x="641" y="121" font-size="7.5" fill="var(--slate)" text-anchor="middle">Distributed Map</text>
+          <text x="641" y="134" font-size="7.5" fill="var(--ir)" text-anchor="middle">hasta 1.000 en paralelo</text>
+          <g stroke="var(--ir)" stroke-width="1">
+            <line x1="600" y1="145" x2="600" y2="150"/><line x1="608" y1="145" x2="608" y2="150"/>
+            <line x1="616" y1="145" x2="616" y2="150"/><line x1="624" y1="145" x2="624" y2="150"/>
+            <line x1="632" y1="145" x2="632" y2="150"/><line x1="640" y1="145" x2="640" y2="150"/>
+            <line x1="648" y1="145" x2="648" y2="150"/><line x1="656" y1="145" x2="656" y2="150"/>
+            <line x1="664" y1="145" x2="664" y2="150"/><line x1="672" y1="145" x2="672" y2="150"/>
+            <line x1="680" y1="145" x2="680" y2="150"/>
+          </g>
+
+          <line x1="702" y1="118" x2="718" y2="118" stroke="var(--slate)" stroke-width="1.2" marker-end="url(#ar)"/>
+
+          <rect x="720" y="80" width="104" height="76" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.2"/>
+          <text x="772" y="102" font-size="9.5" font-weight="600" text-anchor="middle">Aggregate</text>
+          <text x="772" y="114" font-size="9.5" font-weight="600" text-anchor="middle">AndNotify</text>
+          <text x="772" y="131" font-size="7.5" fill="var(--slate)" text-anchor="middle">reconcilia fallos</text>
+          <text x="772" y="144" font-size="7.5" fill="var(--slate)" text-anchor="middle">firma la URL</text>
+
+          <!-- almacenamiento intermedio -->
+          <rect x="492" y="248" width="284" height="46" fill="var(--ir-wash)" stroke="var(--ir)" stroke-width="1.2"/>
+          <text x="634" y="268" font-size="10" font-weight="600" fill="var(--ir)" text-anchor="middle">S3</text>
+          <text x="634" y="284" font-size="7.5" letter-spacing=".08em" fill="var(--slate)" text-anchor="middle">FRAMES · RESULTS · DELIVERABLES</text>
+
+          <g stroke="var(--ir)" stroke-width="1" stroke-dasharray="3 3">
+            <line x1="520" y1="158" x2="520" y2="246" marker-end="url(#arIr)"/>
+            <line x1="620" y1="246" x2="620" y2="158" marker-end="url(#arIr)"/>
+            <line x1="660" y1="158" x2="660" y2="246" marker-end="url(#arIr)"/>
+            <line x1="750" y1="246" x2="750" y2="158" marker-end="url(#arIr)"/>
+          </g>
+
+          <!-- entrega -->
+          <line x1="838" y1="124" x2="872" y2="124" stroke="var(--slate)" stroke-width="1.2" marker-end="url(#ar)"/>
+          <text x="855" y="112" font-size="7.5" letter-spacing=".1em" fill="var(--slate)" text-anchor="middle">POST</text>
+          <text x="855" y="142" font-size="7.5" letter-spacing=".1em" fill="var(--slate)" text-anchor="middle">+ LINK</text>
+
+          <rect x="874" y="96" width="120" height="56" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.2"/>
+          <text x="934" y="118" font-size="10" font-weight="600" text-anchor="middle">Endpoint</text>
+          <text x="934" y="134" font-size="8" letter-spacing=".08em" fill="var(--slate)" text-anchor="middle">EXTERNO</text>
+        </g>
+      </svg>
+      <p class="caption">Arquitectura v2 — sin base de datos intermedia y sin colas. La v1 usaba SQS y dos tablas DynamoDB, con más de 1.800 escrituras por video.</p>
     </div>
 
     <div class="flow rv">
