@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+title: "PuDiN — Pupil Dilation Neurometrics"
+message: "If you use this work, please cite it as below."
+type: software
+authors:
+  - family-names: "Tapia Arana"
+    given-names: Benjamin
+  - family-names: "Neira Insulsa"
+    given-names: Isaías
+license: MIT
+repository-code: "https://github.com/pdt-pupilometry/pudin-web"
+keywords:
+  - pupilometry
+  - Meta Quest Pro
+  - open source
+  - neuroscience

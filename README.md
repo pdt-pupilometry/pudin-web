@@ -83,12 +83,13 @@ plano: sube `index.html` y `assets/` y listo.
 
 ## Licencia y cita
 
-Ver [`LICENSE`](LICENSE) y [`CITATION.cff`](CITATION.cff). La decisión de
-qué licencia usar está pendiente — ambos archivos quedan marcados como tal
-hasta que se defina.
+- **Código** (esta página y repos del sistema): [MIT](LICENSE)
+- **Documentación, archivos 3D y pesos del modelo**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (ver nota al final de [`LICENSE`](LICENSE))
+
+Cómo citar: [`CITATION.cff`](CITATION.cff)
 
 ## Código del sistema
 
 - Captura sobre el visor — https://github.com/pdt-pupilometry/RPi
 - Procesamiento en la nube — https://github.com/pdt-pupilometry/AWS_fluxx
-- Visualización — pendiente de enlazar (ver sección "Código" de la página)
+- Visualización — integrada en la plataforma ALFONSO en el despliegue original; no es un repo de PuDiN ni se publica aquí (ver sección “Visualización” de la página)

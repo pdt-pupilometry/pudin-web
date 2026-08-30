@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Newsreader:ital,opsz,wght@0,6..72,200..700;1,6..72,200..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 <style>
 :root{
   --paper:#dcdfd8; --panel:#e6e8e2; --recess:#c9cdc5;
@@ -25,6 +26,18 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);overflow-x:hidden;
   font-family:"Newsreader",Georgia,serif;font-optical-sizing:auto;
   font-size:clamp(16px,1.02vw,18px);line-height:1.62;-webkit-font-smoothing:antialiased}
+html.spin-ready .page-root{transition:transform .85s cubic-bezier(.22,1,.36,1)}
+@keyframes page-shake{
+  0%,100%{transform:translate(0,0)}
+  12%{transform:translate(-6px,4px)}
+  24%{transform:translate(6px,-5px)}
+  36%{transform:translate(-5px,-4px)}
+  48%{transform:translate(5px,5px)}
+  60%{transform:translate(-4px,3px)}
+  72%{transform:translate(4px,-3px)}
+  84%{transform:translate(-2px,2px)}
+}
+html.shake-ready.is-shaking .page-root{animation:page-shake .48s ease}
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gut)}
 img{max-width:100%}
 
@@ -44,23 +57,60 @@ a{color:var(--ir);text-underline-offset:3px;text-decoration-thickness:1px}
 
 header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 90%,transparent);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--hair)}
-.bar{display:flex;align-items:center;gap:1rem;padding-block:.6rem;min-height:var(--headh)}
+.bar{display:flex;align-items:center;gap:1rem;padding-block:.6rem;min-height:var(--headh);min-width:0}
 .mark{font-family:"Archivo",sans-serif;font-variation-settings:"wdth" 125,"wght" 800;
-  font-size:.92rem;letter-spacing:.02em;text-transform:uppercase;flex:0 0 auto}
-.bar nav{margin-left:auto;display:flex;gap:1.05rem;overflow-x:auto;scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;mask-image:linear-gradient(90deg,#000 92%,transparent)}
-.bar nav::-webkit-scrollbar{display:none}
+  font-size:1rem;letter-spacing:.02em;text-transform:uppercase;flex:0 0 auto;
+  text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:.5rem;
+  transition:color .18s ease}
+.mark::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ir);flex-shrink:0;
+  box-shadow:0 0 0 3px var(--ir-wash);transition:box-shadow .22s ease}
+.mark:hover,.mark.is-active{color:var(--ir)}
+.mark:hover::before,.mark.is-active::before{box-shadow:0 0 0 5px var(--ir-wash)}
+.bar .sub{flex:0 0 auto;opacity:.82}
+.bar nav{margin-left:auto;display:flex;gap:clamp(.55rem,1.6vw,1.05rem);min-width:0;flex:0 1 auto;
+  overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:var(--ir) var(--recess)}
+.bar nav::-webkit-scrollbar{height:4px}
+.bar nav::-webkit-scrollbar-track{background:var(--recess)}
+.bar nav::-webkit-scrollbar-thumb{background:var(--ir)}
 .bar nav a{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--slate);text-decoration:none;white-space:nowrap;padding-block:.45rem}
-.bar nav a:hover{color:var(--ir)}
+  text-transform:uppercase;color:var(--slate);text-decoration:none;white-space:nowrap;
+  padding-block:.45rem;flex:0 0 auto;position:relative;transition:color .18s ease}
+.bar nav a::after{content:"";position:absolute;left:0;right:0;bottom:.12rem;height:1.5px;
+  background:var(--ir);transform:scaleX(0);transform-origin:center;transition:transform .22s ease}
+.bar nav a:hover,.bar nav a.is-active{color:var(--ir)}
+.bar nav a:hover::after,.bar nav a.is-active::after{transform:scaleX(1)}
 
 /* hero */
-.hero{display:grid;grid-template-columns:minmax(280px,400px) 1fr;gap:clamp(26px,5vw,72px);
-  align-items:center;padding-block:clamp(36px,7vw,96px) clamp(36px,6vw,80px)}
-.hero h1{font-size:clamp(2.05rem,5.8vw,4.1rem)}
+.hero{display:flex;flex-direction:column;gap:clamp(28px,4.5vw,56px);
+  padding-block:clamp(36px,7vw,96px) clamp(36px,6vw,80px)}
+.hero-title{text-align:center}
+.hero-title::after{content:"";display:block;width:3rem;height:2px;background:var(--ir);margin:1.55rem auto 0}
+.hero h1{font-size:clamp(2.15rem,6.4vw,4.6rem)}
 .hero h1 em{font-family:"Newsreader",serif;font-style:italic;text-transform:none;font-weight:300;
-  font-size:.5em;display:block;letter-spacing:0;line-height:1.18;color:var(--ir);margin-top:.4em}
-.hero .lede{margin-top:1.3rem}
+  font-size:.45em;display:block;letter-spacing:0;line-height:1.18;color:var(--slate);
+  margin:.55em auto 0;max-width:32ch}
+.hero-body{display:grid;grid-template-columns:minmax(280px,400px) 1fr;gap:clamp(26px,5vw,72px);
+  align-items:center}
+.hero .lede{margin-top:0}
+.creators-label{margin:1.15rem 0 .75rem}
+.creators{list-style:none;display:flex;justify-content:center;flex-wrap:wrap;
+  gap:clamp(.85rem,2.5vw,1.15rem);margin:0;padding:0}
+.creators li{display:flex;flex-direction:column;align-items:center;gap:.55rem;
+  padding:1rem 1.15rem 1.05rem;border:1px solid var(--hair);
+  background:color-mix(in srgb,var(--panel) 88%,var(--paper));
+  min-width:min(100%,240px);transition:border-color .22s ease,box-shadow .22s ease}
+.creators li:hover{border-color:color-mix(in srgb,var(--ir) 35%,var(--hair));
+  box-shadow:0 10px 28px rgba(21,24,27,.07)}
+.creators .name{font-family:"Newsreader",serif;font-size:1.05rem;line-height:1.35}
+.gh-link{display:inline-flex;align-items:center;gap:.42rem;font-family:"IBM Plex Mono",monospace;
+  font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;text-decoration:none;
+  color:var(--ir);border:1px solid color-mix(in srgb,var(--ir) 22%,var(--hair));
+  background:var(--ir-wash);padding:.3em .65em;transition:background .18s,color .18s,border-color .18s}
+.gh-link::before{content:"";width:12px;height:12px;flex-shrink:0;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8'/%3E%3C/svg%3E") center/contain no-repeat}
+.gh-link:hover{background:var(--ir);color:var(--paper);border-color:var(--ir)}
 .gauge{background:var(--panel);border:1px solid var(--hair);padding:18px 18px 14px}
 .gauge svg{display:block;width:100%;height:auto}
 .readout{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
@@ -125,6 +175,10 @@ section{padding-block:clamp(40px,6.5vw,88px);border-top:1px solid var(--hair);
 /* panel de segmentación */
 .diagram{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:clamp(26px,3.5vw,44px);
   scrollbar-width:thin;scrollbar-color:var(--ir) var(--recess)}
+.diagram.is-overflowing{overflow-x:scroll;scrollbar-gutter:stable;padding-bottom:.35rem}
+.diagram.is-overflowing::-webkit-scrollbar{height:6px}
+.diagram.is-overflowing::-webkit-scrollbar-track{background:var(--recess)}
+.diagram.is-overflowing::-webkit-scrollbar-thumb{background:var(--ir)}
 .diagram svg{display:block;width:100%;min-width:820px;height:auto}
 .diagram .caption{margin-top:.7rem}
 .panel-fig{margin:0}
@@ -139,6 +193,15 @@ section{padding-block:clamp(40px,6.5vw,88px);border-top:1px solid var(--hair);
 .model-slot::after{content:"";position:absolute;inset:9px;border:1px solid rgba(21,24,27,.10);pointer-events:none}
 .model-slot .eyebrow{color:var(--ir)}
 .model-slot p{margin:.7rem 0 0;color:var(--slate);font-size:.9rem;max-width:30ch}
+.model-fig{margin:0}
+.model-fig model-viewer{display:block;width:100%;height:auto;aspect-ratio:1;background:var(--recess);
+  border:1px solid var(--hair)}
+.model-fig figcaption{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--slate);padding-top:.55rem;margin-top:.35rem;line-height:1.6}
+.model-fig .dl{display:flex;width:100%;margin-top:.85rem;justify-content:space-between}
+.video-embed{position:relative;aspect-ratio:16/9;max-width:640px;margin:1rem 0 1.25rem;
+  border:1px solid var(--hair);background:var(--recess)}
+.video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 
 .flow{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair)}
 .step{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:1rem;
@@ -178,6 +241,8 @@ section{padding-block:clamp(40px,6.5vw,88px);border-top:1px solid var(--hair);
 .repo{background:var(--panel);padding:clamp(18px,3vw,32px);text-decoration:none;color:inherit;
   display:block;transition:background .2s}
 .repo:hover{background:#eef0ea}
+.repo.is-external{cursor:default;background:color-mix(in srgb,var(--panel) 90%,var(--recess))}
+.repo.is-external:hover{background:color-mix(in srgb,var(--panel) 90%,var(--recess))}
 .repo .eyebrow{margin-bottom:.7rem}
 .repo h3{font-family:"IBM Plex Mono",monospace;font-size:.95rem;font-weight:600;margin:0 0 .7rem;
   color:var(--ir);word-break:break-word}
@@ -213,12 +278,22 @@ section{padding-block:clamp(40px,6.5vw,88px);border-top:1px solid var(--hair);
 .pstep h4{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;
   text-transform:uppercase;color:var(--slate);margin:1.6rem 0 .7rem}
 
-footer{border-top:1px solid var(--hair);padding-block:2.2rem 3rem}
-footer .eyebrow{line-height:1.9}
-.credits{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);margin-top:1.8rem}
-.credits h3{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--slate);margin:0 0 .7rem}
-.credits .block+.block{margin-top:1.7rem}
+footer{border-top:1px solid var(--hair);padding-block:2.4rem 3rem}
+footer .eyebrow{line-height:1.5;margin:0}
+.foot{display:grid;gap:clamp(1.6rem,3vw,2.4rem)}
+.foot-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem 2rem;
+  padding-bottom:1.35rem;border-bottom:1px solid var(--hair)}
+.foot-head .eyebrow{opacity:.88}
+.foot-meta{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--slate);margin:0;line-height:1.6}
+.foot-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);align-items:start}
+.foot-col h3{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--slate);margin:0 0 .85rem}
+.foot-col p{margin:0;font-size:.95rem;color:var(--slate);line-height:1.58;max-width:42ch}
+.foot-col p+p{margin-top:.7rem}
+footer .authors{list-style:none;margin:0;padding:0;display:grid;gap:.85rem}
+footer .authors li{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem .75rem;
+  font-family:"Newsreader",serif;font-size:1.04rem;line-height:1.35;margin:0}
 
 .rv{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
 .rv.in{opacity:1;transform:none}
@@ -230,28 +305,116 @@ footer .eyebrow{line-height:1.9}
     scrollbar-width:none;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--hair);margin-bottom:1rem}
   .guide-nav::-webkit-scrollbar{display:none}
   .guide-nav a{border-bottom:none;white-space:nowrap;flex:0 0 auto}
-  .credits{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr}
 }
 @media(max-width:760px){
-  .hero{grid-template-columns:1fr;gap:32px}
-  .hero .gauge{order:2}
-  .hero .hero-copy{order:1}
+  .hero-body{grid-template-columns:1fr;gap:32px}
+  .hero-body .gauge{order:2}
+  .hero-body .hero-copy{order:1}
+  .bar .sub{display:none}
   .spec li{flex-direction:column;gap:.15rem}
   .spec li i{text-align:left}
 }
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
+  html.spin-ready .page-root{transition:none}
+  html.shake-ready.is-shaking .page-root{animation:none}
+  .duck-drop{animation:none}
+  .cursor.is-blinking .cursor-iris,.cursor.is-blinking .cursor-pupil{animation:none}
+  .cursor-eye-right,.cursor-mouth{transition:none}
+  .face-stamp.is-blinking .face-stamp-iris,.face-stamp.is-blinking .face-stamp-pupil{animation:none}
   .rv{opacity:1;transform:none;transition:none}
   .scroller{scroll-snap-type:none}
+  .bar nav a::after,.mark::before{transition:none}
+  .creators li{transition:none}
 }
+
+/* cursor personalizado — solo puntero fino (mouse/trackpad) */
+@media (pointer:fine){
+  .cursor{position:fixed;left:0;top:0;z-index:10000;pointer-events:none;opacity:0;
+    transition:opacity .2s ease}
+  html.has-cursor .cursor{opacity:1}
+  .cursor-face{display:flex;flex-direction:column;align-items:flex-start}
+  .cursor-eyes{display:flex;align-items:center;gap:0;transition:gap .35s ease}
+  .cursor.has-second-eye .cursor-eyes{gap:5px}
+  .cursor-eye{position:relative;width:26px;height:26px;flex:0 0 auto;
+    transition:width .16s ease,height .16s ease}
+  .cursor-eye-right{max-width:0;opacity:0;overflow:hidden;
+    transform:scale(.45);transition:max-width .4s ease,opacity .35s ease,transform .35s ease}
+  .cursor.has-second-eye .cursor-eye-right{max-width:26px;opacity:1;transform:scale(1)}
+  .cursor-iris,.cursor-pupil{position:absolute;inset:0;border-radius:50%}
+  .cursor-iris{border:1.5px solid color-mix(in srgb,var(--ir) 55%,transparent);
+    background:var(--ir-wash);transition:inherit}
+  .cursor-pupil{inset:auto;width:7px;height:7px;left:50%;top:50%;
+    transform:translate(-50%,-50%);background:var(--ink);transition:width .16s ease,height .16s ease}
+  .cursor-mouth{display:block;width:24px;height:10px;margin:.28rem 0 0 1px;border-radius:50%;
+    background:var(--ir-wash);border:1.5px solid color-mix(in srgb,var(--ir) 55%,transparent);
+    opacity:0;transform:scale(.5);transform-origin:center top;
+    transition:opacity .4s ease,transform .4s ease,margin .35s ease}
+  .cursor.has-mouth .cursor-mouth{opacity:1;transform:scale(1)}
+  .cursor.has-second-eye.has-mouth .cursor-mouth{margin-left:calc((26px + 5px + 26px - 24px) / 2)}
+  .cursor.is-link .cursor-eye{width:34px;height:34px}
+  .cursor.is-link .cursor-eye-right,.cursor.has-second-eye.is-link .cursor-eye-right{max-width:34px}
+  .cursor.is-link .cursor-pupil{width:9px;height:9px}
+  .cursor.is-link .cursor-iris{border-color:var(--ir);background:color-mix(in srgb,var(--ir) 18%,transparent)}
+  .cursor.has-second-eye.is-link.has-mouth .cursor-mouth{margin-left:calc((34px + 5px + 34px - 24px) / 2)}
+  @keyframes cursor-blink-iris{
+    0%,100%{transform:scaleY(1)}
+    45%,55%{transform:scaleY(.1)}
+  }
+  @keyframes cursor-blink-pupil{
+    0%,100%{transform:translate(-50%,-50%) scaleY(1)}
+    45%,55%{transform:translate(-50%,-50%) scaleY(.08)}
+  }
+  .cursor.is-blinking .cursor-eye .cursor-iris{animation:cursor-blink-iris .26s ease-in-out}
+  .cursor.is-blinking .cursor-eye .cursor-pupil{animation:cursor-blink-pupil .26s ease-in-out}
+  html.has-cursor,html.has-cursor *{cursor:none!important}
+  html.has-cursor input,html.has-cursor textarea,html.has-cursor select{cursor:text!important}
+}
+
+.face-flood{position:fixed;inset:0;z-index:9997;pointer-events:none;overflow:hidden}
+.face-stamp{position:absolute;transform:translate(-50%,-50%);pointer-events:none}
+.face-stamp-eyes{display:flex;align-items:center;gap:5px}
+.face-stamp-eye{position:relative;width:26px;height:26px;flex:0 0 auto}
+.face-stamp-iris,.face-stamp-pupil{position:absolute;inset:0;border-radius:50%}
+.face-stamp-iris{border:1.5px solid color-mix(in srgb,var(--ir) 55%,transparent);background:var(--ir-wash)}
+.face-stamp-pupil{inset:auto;width:7px;height:7px;left:50%;top:50%;
+  transform:translate(-50%,-50%);background:var(--ink)}
+.face-stamp-mouth{display:block;width:24px;height:10px;margin:.28rem auto 0;border-radius:50%;
+  background:var(--ir-wash);border:1.5px solid color-mix(in srgb,var(--ir) 55%,transparent)}
+.face-stamp.is-blinking .face-stamp-eye .face-stamp-iris{animation:cursor-blink-iris .26s ease-in-out}
+.face-stamp.is-blinking .face-stamp-eye .face-stamp-pupil{animation:cursor-blink-pupil .26s ease-in-out}
+
+.duck-rain{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden}
+.duck-drop{position:absolute;top:-3rem;left:0;line-height:1;user-select:none;
+  animation:duck-fall linear forwards;will-change:transform}
+@keyframes duck-fall{
+  0%{transform:translateY(0) rotate(var(--rot,0deg))}
+  100%{transform:translateY(calc(100vh + 4rem)) rotate(calc(var(--rot,0deg) + 420deg))}
+}
+
 :focus-visible{outline:2px solid var(--ir);outline-offset:3px}
 </style>
 </head>
 <body>
 
+<div class="cursor" aria-hidden="true">
+  <div class="cursor-face">
+    <div class="cursor-eyes">
+      <div class="cursor-eye cursor-eye-main"><span class="cursor-iris"></span><span class="cursor-pupil"></span></div>
+      <div class="cursor-eye cursor-eye-right" aria-hidden="true"><span class="cursor-iris"></span><span class="cursor-pupil"></span></div>
+    </div>
+    <span class="cursor-mouth" aria-hidden="true"></span>
+  </div>
+</div>
+<div class="duck-rain" aria-hidden="true"></div>
+<div class="face-flood" aria-hidden="true"></div>
+<div class="page-root">
+
 <header>
   <div class="wrap bar">
-    <div class="mark">Pupilometría · Quest Pro</div>
+    <a href="#inicio" class="mark">PuDiN</a>
+    <div class="eyebrow sub">Pupil Dilation Neurometrics</div>
     <nav aria-label="Secciones">
       <a href="#que-es">Qué es</a>
       <a href="#replicar">Replicar</a>
@@ -266,7 +429,24 @@ footer .eyebrow{line-height:1.9}
 <main>
 
 <!-- ============ HERO ============ -->
-<div class="wrap hero">
+<div class="wrap hero" id="inicio">
+  <div class="hero-title">
+    <h1 class="display">Pupilometría<br>abierta para<br>el Quest Pro
+      <em>El visor tiene seguimiento ocular, pero su SDK no entrega el tamaño de la pupila. Esto lo entrega.</em>
+    </h1>
+    <p class="eyebrow creators-label">Autores</p>
+    <ul class="creators">
+      <li>
+        <span class="name">Benjamin Tapia Arana</span>
+        <a class="gh-link" target="_blank" rel="noopener noreferrer" href="https://github.com/AD-74t-sw">AD-74t-sw</a>
+      </li>
+      <li>
+        <span class="name">Isaías Neira Insulsa</span>
+        <a class="gh-link" target="_blank" rel="noopener noreferrer" href="https://github.com/IMneira">IMneira</a>
+      </li>
+    </ul>
+  </div>
+  <div class="hero-body">
   <div class="gauge">
     <svg viewBox="0 0 320 290" role="img" aria-label="Respuesta de la razón pupila/iris al estímulo fotomotor: la pupila se contrae con la luz y se re-dilata en la oscuridad">
       <ellipse cx="160" cy="98" rx="86" ry="72" fill="rgba(110,31,60,.06)" stroke="#6e1f3c" stroke-width="1.6"/>
@@ -287,14 +467,12 @@ footer .eyebrow{line-height:1.9}
   </div>
 
   <div class="hero-copy">
-    <h1 class="display">Dilatación pupilar<br>sobre Meta Quest Pro
-      <em>Abierta y replicable</em>
-    </h1>
     <p class="lede">El visor tiene seguimiento ocular de fábrica, pero su SDK no expone el tamaño de la pupila. Este sistema lo entrega: soporte impreso en 3D, dos cámaras infrarrojas, dos Raspberry Pi y un pipeline serverless que calcula la razón pupila/iris fotograma a fotograma. Unos US$162 en componentes; costo fijo cero cuando no procesa.</p>
     <div class="chips">
       <a class="chip primary" href="#replicar"><span>▸</span> Replicar el sistema</a>
       <a class="chip" href="#modelo"><span>◆</span> Descargar el modelo</a>
     </div>
+  </div>
   </div>
 </div>
 
@@ -339,7 +517,22 @@ footer .eyebrow{line-height:1.9}
     <div class="kickoff rv">
       <div class="item">
         <p class="eyebrow">Costo de componentes</p>
-        <p>150.200 CLP (~US$162), sin contar el visor.</p>
+        <div class="tblwrap">
+          <table class="tbl">
+            <thead><tr><th>Componente</th><th>Uds.</th><th>CLP c/u</th></tr></thead>
+            <tbody>
+              <tr><td>Raspberry Pi Zero 2W</td><td>2</td><td>30.000</td></tr>
+              <tr><td>Cámara GC0308 (NIR)</td><td>2</td><td>10.000</td></tr>
+              <tr><td>Módulo X306 (UPS HAT)</td><td>2</td><td>23.000</td></tr>
+              <tr><td>Batería 18650 (3,7 V)</td><td>2</td><td>5.600</td></tr>
+              <tr><td>MicroSD 16 GB</td><td>2</td><td>5.000</td></tr>
+              <tr><td>Imanes de neodimio</td><td>1 set</td><td>2.000</td></tr>
+              <tr><td>Material de impresión</td><td>—</td><td>1.000</td></tr>
+              <tr class="total"><td>Total</td><td></td><td>150.200</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="caption">≈ US$162 al tipo de cambio de julio de 2026. Excluye el Quest Pro, que es equipamiento base del proyecto ALFONSO.</p>
       </div>
       <div class="item">
         <p class="eyebrow">Necesitas antes de empezar</p>
@@ -348,7 +541,7 @@ footer .eyebrow{line-height:1.9}
           <li>Una cuenta de AWS con permisos de administración.</li>
           <li>Acceso a impresora 3D o a un servicio de impresión.</li>
           <li>Un equipo con Docker, AWS CLI y AWS SAM CLI instalados.</li>
-          <li>Un endpoint HTTP que reciba los resultados (puede ser el módulo de visualización o uno propio).</li>
+          <li>Un endpoint HTTP que reciba los resultados (tu propio servicio o, en el despliegue ALFONSO, su módulo de visualización — ver <a href="#visualizacion">Visualización</a>).</li>
         </ul>
       </div>
       <div class="item">
@@ -374,50 +567,27 @@ footer .eyebrow{line-height:1.9}
           <p>El soporte aloja las dos cámaras apuntando a los ojos sin obstruir las lentes del visor. Se fija combinando presión y acople magnético sobre el borde externo del Quest Pro, donde el visor ya trae imanes para sujetar los bloqueadores de luz: no hay que modificar el dispositivo. Cada marco incorpora dos ejes que permiten ajustar el ángulo de su cámara según la anatomía de quien lo use.</p>
 
           <h4>Modelo 3D</h4>
-          <!-- ===================================================== -->
-          <!-- ============  SLOT MODELO 3D — REEMPLAZAR  ==========  -->
-          <!--
-            Opción más simple (Google model-viewer, un .glb y listo):
+          <figure class="model-fig">
+            <model-viewer
+              src="frames/Duck.glb"
+              alt="Modelo 3D del soporte de cámaras PuDiN para Meta Quest Pro"
+              camera-controls
+              auto-rotate
+              shadow-intensity="1"
+              interaction-prompt="none"
+              touch-action="none">
+            </model-viewer>
+            <figcaption>Modelo 3D — arrastrar para rotar (placeholder Khronos Duck hasta publicar el soporte real)</figcaption>
+            <a class="dl" href="frames/Duck.stl" download>
+              <strong>Duck.stl</strong>
+              <em>impresión 3D</em>
+            </a>
+          </figure>
 
-            1) en <head>:
-               <script type="module"
-                 src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 
-            2) reemplazá el <div class="model-slot"> completo por:
-               <model-viewer
-                 src="assets/soporte.glb"
-                 alt="Soporte de cámaras para Meta Quest Pro"
-                 camera-controls auto-rotate shadow-intensity="1"
-                 style="width:100%;aspect-ratio:4/3;background:var(--recess);border:1px solid var(--hair)">
-               </model-viewer>
-
-            Alternativa sin exportar nada: pegá acá el <iframe> de Sketchfab.
-          -->
-          <div class="model-slot">
-            <div>
-              <p class="eyebrow">Modelo 3D</p>
-              <p><span class="falta">[FALTA: soporte.glb]</span> — espacio reservado para el visor rotable del soporte.</p>
-            </div>
-          </div>
-          <!-- ==========  FIN SLOT MODELO 3D  ====================== -->
-          <!-- ===================================================== -->
-
-          <h4>Archivos imprimibles</h4>
-          <p>Sin el archivo imprimible no hay replicación posible.</p>
-          <div class="dl-row">
-            <span class="falta">[FALTA: soporte.stl]</span>
-            <span class="falta">[FALTA: soporte.step]</span>
-          </div>
-
-          <h4>Parámetros de impresión</h4>
-          <ul class="spec">
-            <li><b>Material</b><i class="falta">[FALTA]</i></li>
-            <li><b>Altura de capa</b><i class="falta">[FALTA]</i></li>
-            <li><b>Relleno</b><i class="falta">[FALTA]</i></li>
-            <li><b>Soportes</b><i class="falta">[FALTA]</i></li>
-            <li><b>Orientación</b><i class="falta">[FALTA]</i></li>
-            <li><b>Tolerancia ejes / asientos de imán</b><i class="falta">[FALTA]</i></li>
-          </ul>
+          <h4>Imanes en la montura</h4>
+          <p>La pieza impresa trae asientos para imanes de neodimio en el borde externo, donde el soporte apoya contra el Quest Pro. Es la misma zona en la que el visor ya incluye imanes de fábrica para los bloqueadores de luz: los de la montura se colocan ahí para acoplarse a esos imanes y sujetar el soporte sin modificar el dispositivo.</p>
+          <p>Los imanes se instalan <strong>después de imprimir</strong>, presionados en sus alojamientos — la vista isométrica posterior muestra dónde van. Antes de fijarlos conviene probar la polaridad: si un par se repelen donde debería haber atracción, invierte uno de los imanes de ese asiento. El set de la lista de materiales del paso 2 cubre todos los puntos de fijación de la montura.</p>
 
           <h4>Vistas del soporte</h4>
           <p class="scroll-hint">Deslízalas para recorrerlas →</p>
@@ -453,15 +623,16 @@ footer .eyebrow{line-height:1.9}
           <h4>Lista de materiales</h4>
           <div class="tblwrap">
             <table class="tbl">
-              <thead><tr><th>Componente</th><th>Uds.</th></tr></thead>
+              <thead><tr><th>Componente</th><th>Uds.</th><th>CLP c/u</th></tr></thead>
               <tbody>
-                <tr><td>Raspberry Pi Zero 2W</td><td>2</td></tr>
-                <tr><td>Cámara GC0308 (NIR, con LED 850&nbsp;nm integrados)</td><td>2</td></tr>
-                <tr><td>Módulo X306 (UPS HAT)</td><td>2</td></tr>
-                <tr><td>Batería 18650 (3,7 V)</td><td>2</td></tr>
-                <tr><td>MicroSD 16 GB</td><td>2</td></tr>
-                <tr><td>Imanes de neodimio</td><td>1 set</td></tr>
-                <tr><td>Material de impresión</td><td>—</td></tr>
+                <tr><td>Raspberry Pi Zero 2W</td><td>2</td><td>30.000</td></tr>
+                <tr><td>Cámara GC0308 (NIR, con LED 850&nbsp;nm integrados)</td><td>2</td><td>10.000</td></tr>
+                <tr><td>Módulo X306 (UPS HAT)</td><td>2</td><td>23.000</td></tr>
+                <tr><td>Batería 18650 (3,7 V)</td><td>2</td><td>5.600</td></tr>
+                <tr><td>MicroSD 16 GB</td><td>2</td><td>5.000</td></tr>
+                <tr><td>Imanes de neodimio</td><td>1 set</td><td>2.000</td></tr>
+                <tr><td>Material de impresión</td><td>—</td><td>1.000</td></tr>
+                <tr class="total"><td>Total</td><td></td><td>150.200</td></tr>
               </tbody>
             </table>
           </div>
@@ -476,7 +647,7 @@ footer .eyebrow{line-height:1.9}
           </ul>
 
           <figure style="margin:1.2rem 0 0;max-width:480px">
-            <img src="assets/rpi-pinout.jpg" width="1017" height="800" loading="lazy" style="display:block;width:100%;height:auto;border:1px solid var(--hair)" alt="Pinout GPIO de la Raspberry Pi Zero 2W, con GPIO14 (UART TX) y GPIO15 (UART RX) señalados">
+            <img src="assets/rpi-pinout.png" width="1017" height="800" loading="lazy" style="display:block;width:100%;height:auto" alt="Pinout GPIO de la Raspberry Pi Zero 2W, con GPIO14 (UART TX) y GPIO15 (UART RX) señalados">
             <figcaption class="caption">Pinout de referencia — GPIO14 (TX) y GPIO15 (RX) de cada Pi se cruzan hacia la otra (TX→RX, RX→TX), con un pin GND compartido entre ambas placas.</figcaption>
           </figure>
 
@@ -513,7 +684,7 @@ footer .eyebrow{line-height:1.9}
           <p>Con <span class="res">UPLOADER=s3</span>, además hay que dejar las credenciales de AWS en el entorno de cada Pi.</p>
 
           <p style="margin-top:1.2rem">Para grabar en Raspberry Pi conviene <span class="res">RECORDING_BACKEND=ffmpeg</span> y <span class="res">PREFERRED_CODEC=H264</span>, que usa el codificador por hardware <span class="res">h264_v4l2m2m</span> y baja la carga de CPU. La salida queda en escala de grises.</p>
-          <p><strong>Cómo se dispara una grabación.</strong> La aplicación escucha comandos por WebSocket. El modo depende de con qué se integre: <span class="res">pupilometry</span> para conectarse directo al backend del módulo de visualización, <span class="res">base</span> para responder a una sesión de VR del proyecto mayor, <span class="res">dual</span> para ambas, <span class="res">legacy</span> para pruebas directas. Para probar sin nada montado puedes enviar <span class="res">start &lt;session_id&gt; &lt;eye_id&gt;</span> y <span class="res">stop</span> por texto plano a un WebSocket local, con <span class="res">UPLOADER=simulated</span>.</p>
+          <p><strong>Cómo se dispara una grabación.</strong> La aplicación escucha comandos por WebSocket. El modo depende de con qué se integre: <span class="res">pupilometry</span> para conectarse al backend de un módulo de visualización externo, <span class="res">base</span> para responder a una sesión de VR de ALFONSO, <span class="res">dual</span> para ambas, <span class="res">legacy</span> para pruebas directas. Para probar sin nada montado puedes enviar <span class="res">start &lt;session_id&gt; &lt;eye_id&gt;</span> y <span class="res">stop</span> por texto plano a un WebSocket local, con <span class="res">UPLOADER=simulated</span>.</p>
           <p class="caption">Detalle de variables y solución de problemas en el <a href="https://github.com/pdt-pupilometry/RPi#readme">README de RPi</a>.</p>
         </article>
 
@@ -523,12 +694,19 @@ footer .eyebrow{line-height:1.9}
           <h3>Conectar el destino de los datos y verificar</h3>
 
           <h4>Destino</h4>
-          <p>Al terminar el procesamiento, el pipeline envía un POST pequeño —metadata más una URL de descarga firmada— al endpoint configurado. Nunca envía los datos en el cuerpo. El endpoint hace un GET a esa URL y obtiene el archivo consolidado. Puede ser el <a href="#visualizacion">módulo de visualización</a> del proyecto o cualquier servicio propio que implemente ese contrato.</p>
+          <p>Al terminar el procesamiento, el pipeline envía un POST pequeño —metadata más una URL de descarga firmada— al endpoint configurado. Nunca envía los datos en el cuerpo. El endpoint hace un GET a esa URL y obtiene el archivo consolidado. Puede ser un servicio propio que implemente ese contrato; en ALFONSO se usó su módulo de visualización (no publicado aquí).</p>
           <p class="caption">Detalle del contrato en <a href="https://github.com/pdt-pupilometry/AWS_fluxx/blob/main/NOTIFICATION_FORMAT.md">NOTIFICATION_FORMAT.md</a>.</p>
 
           <h4>Verificación — la prueba de aceptación de tu réplica</h4>
+          <p>Reproduce el video de estímulo fotomotor (30 segundos de adaptación a la oscuridad y luego seis ciclos de 4 segundos de luz seguidos de 8 de oscuridad):</p>
+          <div class="video-embed">
+            <iframe src="https://www.youtube.com/embed/w6kx2phSsIE?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=w6kx2phSsIE&amp;playsinline=1"
+              title="Video de estímulo fotomotor para prueba del sistema PuDiN"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          </div>
+          <p class="caption"><a target="_blank" rel="noopener noreferrer" href="https://youtu.be/w6kx2phSsIE">Abrir en YouTube</a> si el reproductor no carga.</p>
           <ul class="checklist">
-            <li>Reproduce el video de estímulo fotomotor <span class="falta">[FALTA: publicar el archivo o las instrucciones para generarlo]</span>, que impone 30 segundos de adaptación a la oscuridad y luego seis ciclos de 4 segundos de luz seguidos de 8 de oscuridad.</li>
             <li>Graba una sesión con ese estímulo y procésala.</li>
             <li><strong>Qué debe verse:</strong> durante la adaptación la razón se mantiene alta, entre 0,20 y 0,30. Con cada encendido cae abruptamente a 0,05–0,10 y en la ventana oscura siguiente se recupera de forma gradual. Seis veces, con ambos ojos siguiendo trayectorias consistentes entre sí. Las caídas puntuales aisladas son parpadeos y se descartan por umbral de confianza bajo 0,3.</li>
           </ul>
@@ -651,10 +829,10 @@ footer .eyebrow{line-height:1.9}
       <p class="eyebrow">Visualización</p>
       <h2 class="h2">El tercer componente: la interfaz del investigador</h2>
     </div>
-    <div class="narrow rv">
-      <p>Permite al investigador iniciar sesiones de grabación, revisar el historial y visualizar la serie temporal de ambos ojos. Está construido en Django y Vue 3 e integrado en la plataforma ALFONSO.</p>
-      <p><strong>Es sustituible.</strong> Cualquier servicio que reciba la notificación del pipeline y descargue el archivo consolidado (ver <a href="#paso-5">paso 5</a>) cumple la misma función.</p>
-      <p class="caption">Repositorio: <span class="falta">[FALTA: URL del repositorio]</span></p>
+    <div class="rv">
+      <p>En el despliegue original, dentro del proyecto <strong>ALFONSO</strong>, existe un módulo web (Django + Vue 3) para iniciar sesiones de grabación, revisar el historial y visualizar la serie temporal de ambos ojos.</p>
+      <p>Ese módulo pertenece a la plataforma ALFONSO — un proyecto de investigación ajeno a PuDiN — y <strong>no se entrega ni se publica desde este repositorio</strong>. No hay enlace al código: no es software que podamos redistribuir.</p>
+      <p><strong>Es sustituible.</strong> Para replicar el sistema solo necesitas un endpoint que reciba la notificación del pipeline y descargue el archivo consolidado (ver <a href="#paso-5">paso 5</a> y <a href="https://github.com/pdt-pupilometry/AWS_fluxx/blob/main/NOTIFICATION_FORMAT.md">NOTIFICATION_FORMAT.md</a>). Cualquier servicio propio que implemente ese contrato cumple la misma función.</p>
     </div>
   </div>
 </section>
@@ -705,7 +883,7 @@ footer .eyebrow{line-height:1.9}
   <div class="wrap">
     <div class="sec-head rv">
       <p class="eyebrow">Código</p>
-      <h2 class="h2">Los tres repositorios</h2>
+      <h2 class="h2">Repositorios abiertos y visualización</h2>
     </div>
     <div class="repos rv">
       <a class="repo" href="https://github.com/pdt-pupilometry/RPi">
@@ -722,13 +900,13 @@ footer .eyebrow{line-height:1.9}
         <p>Pipeline serverless de procesamiento de videos oculares: extracción de fotogramas, segmentación masiva en paralelo, reconciliación sin fotogramas perdidos y notificación con link de descarga. Infraestructura como código, un solo comando.</p>
         <div class="tags"><b>AWS SAM</b><b>Step Functions</b><b>Lambda</b><b>EventBridge</b><b>S3</b><b>ONNX</b><b>Docker</b></div>
       </a>
-      <a class="repo" href="#visualizacion">
-        <span class="step-ref">Se usa en el paso 5</span>
-        <p class="eyebrow">Visualización · módulo web</p>
-        <h3><span class="falta">[FALTA: repositorio del módulo de visualización]</span></h3>
-        <p>Interfaz Django + Vue 3 para iniciar sesiones, revisar el historial y ver las curvas de ambos ojos. Integrada en la plataforma ALFONSO; sustituible por cualquier servicio que implemente el mismo contrato de notificación.</p>
-        <div class="tags"><b>Django</b><b>Vue 3</b></div>
-      </a>
+      <div class="repo is-external">
+        <span class="step-ref">Integración · paso 5</span>
+        <p class="eyebrow">Visualización · plataforma ALFONSO</p>
+        <h3>Módulo web ALFONSO</h3>
+        <p>Interfaz Django + Vue 3 usada en el despliegue original dentro de ALFONSO. No es parte de PuDiN ni se publica aquí: la plataforma ALFONSO es un proyecto ajeno. Implementa tu propio receptor del contrato de notificación o sustitúyelo por cualquier backend equivalente.</p>
+        <div class="tags"><b>Django</b><b>Vue 3</b><b>no redistribuible</b></div>
+      </div>
     </div>
   </div>
 </section>
@@ -737,21 +915,39 @@ footer .eyebrow{line-height:1.9}
 
 <!-- ============ CRÉDITOS ============ -->
 <footer id="creditos">
-  <div class="wrap">
-    <p class="eyebrow">Créditos y uso</p>
-    <div class="credits">
-      <div class="block">
-        <h3>Autores y contexto</h3>
-        <p>Isaías Neira y Benjamin Tapia.</p>
-        <p>Este sistema forma parte del proyecto <strong>ALFONSO</strong>.</p>
+  <div class="wrap foot">
+    <div class="foot-head">
+      <div>
+        <p class="eyebrow">PuDiN</p>
+        <p class="eyebrow" style="margin-top:.35rem">Pupil Dilation Neurometrics</p>
       </div>
-      <div class="block">
+      <p class="foot-meta">Trabajo de título · Proyecto ALFONSO · Santiago, Chile</p>
+    </div>
+    <div class="foot-grid">
+      <div class="foot-col">
+        <h3>Autores</h3>
+        <ul class="authors">
+          <li>
+            <span>Benjamin Tapia Arana</span>
+            <a class="gh-link" target="_blank" rel="noopener noreferrer" href="https://github.com/AD-74t-sw">AD-74t-sw</a>
+          </li>
+          <li>
+            <span>Isaías Neira Insulsa</span>
+            <a class="gh-link" target="_blank" rel="noopener noreferrer" href="https://github.com/IMneira">IMneira</a>
+          </li>
+        </ul>
+        <p style="margin-top:1rem">Trabajo de título desarrollado en el marco del proyecto <strong>ALFONSO</strong> (plataforma de investigación ajena; solo se publican los repos de captura y procesamiento listados arriba).</p>
+      </div>
+      <div class="foot-col">
         <h3>Licencia</h3>
-        <p class="falta">[FALTA: decisión de licencia pendiente — ver LICENSE en la raíz del repositorio]</p>
+        <p>El <strong>código fuente</strong> del sistema se publica bajo licencia <a target="_blank" rel="noopener noreferrer" href="https://opensource.org/license/mit"><strong>MIT</strong></a> (captura, procesamiento en la nube y esta página).</p>
+        <p>La documentación, los archivos 3D del soporte y los pesos del modelo se publican bajo <a target="_blank" rel="noopener noreferrer" href="https://creativecommons.org/licenses/by/4.0/"><strong>CC BY 4.0</strong></a>. Detalle en <a href="LICENSE">LICENSE</a>.</p>
       </div>
     </div>
   </div>
 </footer>
+
+</div>
 
 <script>
 (function(){
@@ -825,6 +1021,685 @@ footer .eyebrow{line-height:1.9}
   } else {
     document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
   }
+
+  var mark = document.querySelector('.mark');
+  var navLinks = document.querySelectorAll('.bar nav a[href^="#"]');
+  var sectionIds = ['inicio','que-es','replicar','pipeline','visualizacion','modelo','codigo','creditos'];
+  function updateActiveNav(){
+    var y = window.scrollY + 72;
+    var active = 'inicio';
+    sectionIds.forEach(function(id){
+      var el = document.getElementById(id);
+      if (el && el.offsetTop <= y) active = id;
+    });
+    if (mark) mark.classList.toggle('is-active', active === 'inicio');
+    navLinks.forEach(function(link){
+      link.classList.toggle('is-active', link.getAttribute('href') === '#' + active);
+    });
+  }
+  updateActiveNav();
+  window.addEventListener('scroll', updateActiveNav, {passive:true});
+  window.addEventListener('resize', updateActiveNav);
+
+  function updateDiagramScrollbars(){
+    document.querySelectorAll('.diagram').forEach(function(el){
+      el.classList.toggle('is-overflowing', el.scrollWidth > el.clientWidth + 1);
+    });
+  }
+  updateDiagramScrollbars();
+  window.addEventListener('resize', updateDiagramScrollbars);
+  if ('ResizeObserver' in window) {
+    document.querySelectorAll('.diagram').forEach(function(el){
+      new ResizeObserver(updateDiagramScrollbars).observe(el);
+    });
+  }
+  var pageRoot = document.querySelector('.page-root');
+
+  var cursor = document.querySelector('.cursor');
+  if (cursor && !reduce && window.matchMedia('(pointer: fine)').matches) {
+    document.documentElement.classList.add('has-cursor');
+    var mx = -9999, my = -9999;
+    var mainEye = cursor.querySelector('.cursor-eye-main');
+    var interactive = 'a,button,input,textarea,select,label,[role=button],.chip,.dl,.repo,model-viewer';
+
+    function placeCursor(x, y){
+      mx = x; my = y;
+      var r = mainEye.offsetWidth / 2;
+      cursor.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) translate(' + (-r) + 'px,' + (-r) + 'px)';
+    }
+
+    var faceEyeTimer, faceMouthTimer, faceFloodTimer, faceFloodSpawnTimer;
+    var faceFloodLayer = document.querySelector('.face-flood');
+    var faceBodies = [];
+    var facePhysicsOn = false;
+    var facePhysicsFrame = 0;
+    var faceMovementStarted = false;
+    var faceKickTimer;
+    var FACE_R = 30;
+    var FACE_SPEED = 2.75;
+
+    function normalizeFaceSpeed(body){
+      var sp = Math.hypot(body.vx, body.vy);
+      if (sp < 0.01) {
+        var ang = Math.random() * Math.PI * 2;
+        body.vx = Math.cos(ang) * FACE_SPEED;
+        body.vy = Math.sin(ang) * FACE_SPEED;
+      } else {
+        body.vx = body.vx / sp * FACE_SPEED;
+        body.vy = body.vy / sp * FACE_SPEED;
+      }
+    }
+
+    function kickAllFaces(){
+      for (var i = 0; i < faceBodies.length; i++) normalizeFaceSpeed(faceBodies[i]);
+    }
+
+    function getCursorCollider(){
+      if (mx < -9990) return null;
+      var rect = cursor.getBoundingClientRect();
+      if (!rect.width || !rect.height) return null;
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+        r: Math.max(rect.width, rect.height) / 2,
+        vx: 0,
+        vy: 0
+      };
+    }
+
+    function resolveFaceStatic(face, wall){
+      var dx = wall.x - face.x;
+      var dy = wall.y - face.y;
+      var dist = Math.hypot(dx, dy) || 0.001;
+      var minDist = face.r + wall.r;
+      if (dist >= minDist) return false;
+
+      var nx = dx / dist, ny = dy / dist;
+      var overlap = minDist - dist;
+      face.x -= nx * overlap;
+      face.y -= ny * overlap;
+
+      var vdn = face.vx * nx + face.vy * ny;
+      if (vdn > 0) {
+        face.vx -= 2 * vdn * nx;
+        face.vy -= 2 * vdn * ny;
+      } else {
+        face.vx -= FACE_SPEED * nx;
+        face.vy -= FACE_SPEED * ny;
+      }
+      normalizeFaceSpeed(face);
+      return true;
+    }
+
+    function hideFaceExtras(){
+      cursor.classList.remove('has-second-eye', 'has-mouth');
+    }
+
+    function updateFaceEl(body){
+      body.el.style.left = body.x + 'px';
+      body.el.style.top = body.y + 'px';
+    }
+
+    function faceOverlapsAny(x, y, skip){
+      for (var i = 0; i < faceBodies.length; i++) {
+        if (faceBodies[i] === skip) continue;
+        var f = faceBodies[i];
+        var dx = x - f.x, dy = y - f.y;
+        if (dx * dx + dy * dy < (FACE_R + f.r) * (FACE_R + f.r) - 1) return true;
+      }
+      var wall = getCursorCollider();
+      if (wall) {
+        var cdx = x - wall.x, cdy = y - wall.y;
+        if (cdx * cdx + cdy * cdy < (FACE_R + wall.r) * (FACE_R + wall.r) - 1) return true;
+      }
+      return false;
+    }
+
+    function findFreeFaceSpot(){
+      var pad = FACE_R + 6;
+      var w = window.innerWidth, h = window.innerHeight;
+      if (w < pad * 2 || h < pad * 2) return null;
+      for (var n = 0; n < 50; n++) {
+        var x = pad + Math.random() * (w - pad * 2);
+        var y = pad + Math.random() * (h - pad * 2);
+        if (!faceOverlapsAny(x, y)) return { x: x, y: y };
+      }
+      return null;
+    }
+
+    function resolveFacePair(a, b){
+      var dx = b.x - a.x, dy = b.y - a.y;
+      var dist = Math.hypot(dx, dy) || 0.001;
+      var minDist = a.r + b.r;
+      if (dist >= minDist) return false;
+
+      var nx = dx / dist, ny = dy / dist;
+      var overlap = minDist - dist;
+      a.x -= nx * overlap * 0.5;
+      a.y -= ny * overlap * 0.5;
+      b.x += nx * overlap * 0.5;
+      b.y += ny * overlap * 0.5;
+
+      var dvx = b.vx - a.vx, dvy = b.vy - a.vy;
+      var dvn = dvx * nx + dvy * ny;
+      if (dvn < 0) {
+        var impulse = -dvn;
+        a.vx -= impulse * nx;
+        a.vy -= impulse * ny;
+        b.vx += impulse * nx;
+        b.vy += impulse * ny;
+      } else {
+        a.vx -= FACE_SPEED * nx;
+        a.vy -= FACE_SPEED * ny;
+        b.vx += FACE_SPEED * nx;
+        b.vy += FACE_SPEED * ny;
+      }
+      normalizeFaceSpeed(a);
+      normalizeFaceSpeed(b);
+      return true;
+    }
+
+    function resolveFaceCollisions(iterations){
+      var hit = false;
+      var wall = getCursorCollider();
+      for (var k = 0; k < iterations; k++) {
+        for (var i = 0; i < faceBodies.length; i++) {
+          for (var j = i + 1; j < faceBodies.length; j++) {
+            if (resolveFacePair(faceBodies[i], faceBodies[j])) hit = true;
+          }
+        }
+        if (wall) {
+          for (i = 0; i < faceBodies.length; i++) {
+            if (resolveFaceStatic(faceBodies[i], wall)) hit = true;
+          }
+        }
+      }
+      return hit;
+    }
+
+    function clampFaceToBounds(body){
+      var pad = body.r;
+      var w = window.innerWidth, h = window.innerHeight;
+      if (body.x < pad) { body.x = pad; body.vx = Math.abs(body.vx); }
+      if (body.x > w - pad) { body.x = w - pad; body.vx = -Math.abs(body.vx); }
+      if (body.y < pad) { body.y = pad; body.vy = Math.abs(body.vy); }
+      if (body.y > h - pad) { body.y = h - pad; body.vy = -Math.abs(body.vy); }
+      normalizeFaceSpeed(body);
+    }
+
+    function stepFacePhysics(dt){
+      var wall = getCursorCollider();
+      for (var i = 0; i < faceBodies.length; i++) {
+        var f = faceBodies[i];
+        f.x += f.vx * dt * 60;
+        f.y += f.vy * dt * 60;
+        clampFaceToBounds(f);
+        if (wall) resolveFaceStatic(f, wall);
+        updateFaceEl(f);
+      }
+      resolveFaceCollisions(6);
+      for (i = 0; i < faceBodies.length; i++) {
+        clampFaceToBounds(faceBodies[i]);
+        if (wall) resolveFaceStatic(faceBodies[i], wall);
+        updateFaceEl(faceBodies[i]);
+      }
+    }
+
+    function runFacePhysics(ts){
+      if (!facePhysicsOn || !faceBodies.length) {
+        facePhysicsOn = false;
+        facePhysicsFrame = 0;
+        return;
+      }
+      if (!facePhysicsFrame) facePhysicsFrame = ts;
+      var dt = Math.min(0.032, (ts - facePhysicsFrame) / 1000);
+      facePhysicsFrame = ts;
+      if (!document.hidden) stepFacePhysics(dt);
+      requestAnimationFrame(runFacePhysics);
+    }
+
+    function startFacePhysics(){
+      if (facePhysicsOn) return;
+      facePhysicsOn = true;
+      facePhysicsFrame = 0;
+      requestAnimationFrame(runFacePhysics);
+    }
+
+    function stopFacePhysics(){
+      facePhysicsOn = false;
+      facePhysicsFrame = 0;
+    }
+
+    function clearFaceFlood(){
+      clearTimeout(faceFloodTimer);
+      clearTimeout(faceKickTimer);
+      clearInterval(faceFloodSpawnTimer);
+      faceFloodSpawnTimer = null;
+      stopFacePhysics();
+      faceBodies = [];
+      faceMovementStarted = false;
+      if (faceFloodLayer) faceFloodLayer.innerHTML = '';
+    }
+
+    function scheduleFaceStampBlink(face){
+      clearTimeout(face._blinkTimer);
+      face._blinkTimer = setTimeout(function(){
+        if (!face.isConnected) return;
+        face.classList.add('is-blinking');
+        var pupil = face.querySelector('.face-stamp-pupil');
+        pupil.addEventListener('animationend', function onBlinkEnd(){
+          face.classList.remove('is-blinking');
+          pupil.removeEventListener('animationend', onBlinkEnd);
+          scheduleFaceStampBlink(face);
+        });
+      }, 1000 + Math.random() * 29000);
+    }
+
+    function createFaceStamp(x, y, vx, vy){
+      var face = document.createElement('div');
+      face.className = 'face-stamp';
+      face.innerHTML =
+        '<div class="face-stamp-eyes">' +
+          '<div class="face-stamp-eye"><span class="face-stamp-iris"></span><span class="face-stamp-pupil"></span></div>' +
+          '<div class="face-stamp-eye"><span class="face-stamp-iris"></span><span class="face-stamp-pupil"></span></div>' +
+        '</div>' +
+        '<span class="face-stamp-mouth"></span>';
+      faceFloodLayer.appendChild(face);
+      var body = { el: face, x: x, y: y, vx: vx || 0, vy: vy || 0, r: FACE_R };
+      faceBodies.push(body);
+      updateFaceEl(body);
+      scheduleFaceStampBlink(face);
+      return body;
+    }
+
+    function spawnFaceStampOnOther(){
+      if (!faceBodies.length) return false;
+      var host = faceBodies[Math.floor(Math.random() * faceBodies.length)];
+      var angle = Math.random() * Math.PI * 2;
+      var x = host.x + Math.cos(angle) * (FACE_R * 0.18);
+      var y = host.y + Math.sin(angle) * (FACE_R * 0.18);
+      createFaceStamp(x, y, 0, 0);
+      afterFaceSpawn();
+      return true;
+    }
+
+    function spawnFaceStampFree(){
+      var spot = findFreeFaceSpot();
+      if (!spot) return false;
+      createFaceStamp(spot.x, spot.y, 0, 0);
+      afterFaceSpawn();
+      return true;
+    }
+
+    function stopFaceSpawning(){
+      clearInterval(faceFloodSpawnTimer);
+      faceFloodSpawnTimer = null;
+    }
+
+    function onFaceCollision(){
+      if (faceMovementStarted) return;
+      faceMovementStarted = true;
+      stopFaceSpawning();
+      clearTimeout(faceKickTimer);
+      kickAllFaces();
+      startFacePhysics();
+    }
+
+    function afterFaceSpawn(){
+      if (resolveFaceCollisions(8)) onFaceCollision();
+    }
+
+    function tickFaceSpawn(){
+      if (document.hidden || faceMovementStarted) return;
+
+      if (faceBodies.length && Math.random() < 0.4) {
+        spawnFaceStampOnOther();
+        return;
+      }
+
+      if (!spawnFaceStampFree()) stopFaceSpawning();
+    }
+
+    function startFaceFlood(){
+      if (!faceFloodLayer) return;
+      clearFaceFlood();
+      faceFloodLayer = document.querySelector('.face-flood');
+
+      for (var i = 0; i < 4; i++) {
+        if (!spawnFaceStampFree()) break;
+      }
+
+      faceFloodSpawnTimer = setInterval(tickFaceSpawn, 500);
+      faceKickTimer = setTimeout(function(){
+        if (!faceMovementStarted && faceBodies.length) {
+          spawnFaceStampOnOther();
+        }
+      }, 1200);
+    }
+
+    function triggerFaceFlood(){
+      if (document.hidden) {
+        faceFloodTimer = setTimeout(triggerFaceFlood, 1000);
+        return;
+      }
+      startFaceFlood();
+    }
+
+    function scheduleFaceEvolution(){
+      clearTimeout(faceEyeTimer);
+      clearTimeout(faceMouthTimer);
+      clearTimeout(faceFloodTimer);
+      clearFaceFlood();
+      faceEyeTimer = setTimeout(function(){
+        if (document.hidden) {
+          scheduleFaceEvolution();
+          return;
+        }
+        cursor.classList.add('has-second-eye');
+        if (mx > -9990) placeCursor(mx, my);
+        faceMouthTimer = setTimeout(function(){
+          cursor.classList.add('has-mouth');
+          faceFloodTimer = setTimeout(triggerFaceFlood, 60000);
+        }, 10000);
+      }, 40000);
+    }
+
+    function onCursorMove(x, y){
+      placeCursor(x, y);
+      hideFaceExtras();
+      scheduleFaceEvolution();
+    }
+
+    document.addEventListener('pointermove', function(e){
+      if (e.pointerType && e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
+      onCursorMove(e.clientX, e.clientY);
+    }, {passive:true});
+
+    document.addEventListener('pointerover', function(e){
+      cursor.classList.toggle('is-link', !!e.target.closest(interactive));
+      if (mx > -9990) placeCursor(mx, my);
+    });
+
+    document.addEventListener('pointerleave', function(){ cursor.style.opacity = '0'; });
+    document.addEventListener('pointerenter', function(e){
+      cursor.style.opacity = '';
+      onCursorMove(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('visibilitychange', function(){
+      if (!document.hidden) placeCursor(mx, my);
+    });
+
+    var blinkTimer;
+    var mainPupil = mainEye.querySelector('.cursor-pupil');
+
+    function scheduleBlink(){
+      clearTimeout(blinkTimer);
+      blinkTimer = setTimeout(function(){
+        if (document.hidden) {
+          scheduleBlink();
+          return;
+        }
+        cursor.classList.add('is-blinking');
+        mainPupil.addEventListener('animationend', function onBlinkEnd(){
+          cursor.classList.remove('is-blinking');
+          mainPupil.removeEventListener('animationend', onBlinkEnd);
+          scheduleBlink();
+        });
+      }, 1000 + Math.random() * 29000);
+    }
+
+    scheduleBlink();
+    scheduleFaceEvolution();
+    window.addEventListener('resize', function(){
+      placeCursor(mx, my);
+      resolveFaceCollisions(6);
+      for (var i = 0; i < faceBodies.length; i++) {
+        clampFaceToBounds(faceBodies[i]);
+        updateFaceEl(faceBodies[i]);
+      }
+    });
+  } else if (cursor) {
+    cursor.remove();
+  }
+
+  var quackSrc = 'assets/quack.wav';
+  var quackPool = [];
+  new Audio(quackSrc).preload = 'auto';
+  function playQuack(){
+    try {
+      var a = quackPool.length ? quackPool.pop() : new Audio(quackSrc);
+      a.volume = 0.72;
+      a.playbackRate = 0.94 + Math.random() * 0.12;
+      a.currentTime = 0;
+      var p = a.play();
+      if (p && p.catch) p.catch(function(){});
+      a.onended = function(){ quackPool.push(a); };
+    } catch(e){}
+  }
+  document.addEventListener('click', playQuack);
+
+  var duckRainLayer = document.querySelector('.duck-rain');
+  var clickBurst = [];
+  var duckRainUntil = 0;
+  var duckRainCooldownUntil = 0;
+  var duckSpawnTimer;
+
+  function spawnDuck(){
+    if (!duckRainLayer) return;
+    var duck = document.createElement('span');
+    duck.className = 'duck-drop';
+    duck.textContent = '🦆';
+    duck.style.left = (Math.random() * 100) + 'vw';
+    duck.style.fontSize = (1.35 + Math.random() * 1.4) + 'rem';
+    duck.style.setProperty('--rot', (Math.random() * 80 - 40) + 'deg');
+    duck.style.animationDuration = (2.4 + Math.random() * 2.2) + 's';
+    duck.style.animationDelay = (Math.random() * 0.35) + 's';
+    duckRainLayer.appendChild(duck);
+    duck.addEventListener('animationend', function(){ duck.remove(); });
+  }
+
+  function startDuckRain(){
+    if (reduce || !duckRainLayer) return;
+    var now = Date.now();
+    if (now < duckRainCooldownUntil) return;
+
+    duckRainCooldownUntil = now + 9000;
+    duckRainUntil = now + 3400;
+    if (duckSpawnTimer) clearInterval(duckSpawnTimer);
+
+    spawnDuck();
+    duckSpawnTimer = setInterval(function(){
+      if (Date.now() > duckRainUntil) {
+        clearInterval(duckSpawnTimer);
+        duckSpawnTimer = null;
+        return;
+      }
+      spawnDuck();
+      if (Math.random() > 0.45) spawnDuck();
+    }, 130);
+  }
+
+  document.addEventListener('click', function(){
+    if (reduce) return;
+    var now = Date.now();
+    clickBurst.push(now);
+    while (clickBurst.length && now - clickBurst[0] > 1800) clickBurst.shift();
+    if (clickBurst.length >= 9) {
+      clickBurst = [];
+      startDuckRain();
+    }
+  });
+
+  document.documentElement.classList.add('spin-ready');
+  document.documentElement.classList.add('shake-ready');
+  var pageDeg = 0;
+  var pivotX = window.innerWidth / 2 + window.scrollX;
+  var pivotY = window.innerHeight / 2 + window.scrollY;
+  var gestureTrail = [];
+  var gestureCircles = 0;
+  var gestureDir = 0;
+  var gestureLastCircle = 0;
+  var gestureWindowMs = 4500;
+  var gestureCooldownUntil = 0;
+  var lastSampleX, lastSampleY;
+  var shakeLastY;
+  var shakeVertDir = 0;
+  var shakeReversals = 0;
+  var shakeWindowStart = 0;
+  var shakeLastFlip = 0;
+  var shakeCooldownUntil = 0;
+
+  function bodyScaleForRotation(deg){
+    var n = ((deg % 360) + 360) % 360;
+    if (n === 90 || n === 270) {
+      return Math.min(window.innerWidth / window.innerHeight, window.innerHeight / window.innerWidth) * 0.96;
+    }
+    return 1;
+  }
+
+  function setPageRotation(deg){
+    if (!pageRoot) return;
+    var scale = bodyScaleForRotation(deg);
+    pageRoot.style.transformOrigin = pivotX + 'px ' + pivotY + 'px';
+    pageRoot.style.transform = 'rotate(' + deg + 'deg) scale(' + scale + ')';
+  }
+
+  function resetGestureTrail(){
+    gestureTrail = [];
+    lastSampleX = lastSampleY = undefined;
+  }
+
+  function detectCircle(points){
+    if (points.length < 20) return null;
+    var cx = 0, cy = 0, i;
+    for (i = 0; i < points.length; i++) { cx += points[i].x; cy += points[i].y; }
+    cx /= points.length;
+    cy /= points.length;
+
+    var avgR = 0;
+    for (i = 0; i < points.length; i++) avgR += Math.hypot(points[i].x - cx, points[i].y - cy);
+    avgR /= points.length;
+    if (avgR < 42) return null;
+
+    var variance = 0;
+    for (i = 0; i < points.length; i++) {
+      var dr = Math.hypot(points[i].x - cx, points[i].y - cy) - avgR;
+      variance += dr * dr;
+    }
+    if (Math.sqrt(variance / points.length) / avgR > 0.38) return null;
+
+    var angle = 0;
+    for (i = 1; i < points.length; i++) {
+      var a0 = Math.atan2(points[i - 1].y - cy, points[i - 1].x - cx);
+      var a1 = Math.atan2(points[i].y - cy, points[i].x - cx);
+      var d = a1 - a0;
+      if (d > Math.PI) d -= Math.PI * 2;
+      if (d < -Math.PI) d += Math.PI * 2;
+      angle += d;
+    }
+    if (Math.abs(angle) < 5.2) return null;
+    return { dir: angle > 0 ? 1 : -1, cx: cx, cy: cy };
+  }
+
+  function registerCircle(dir, cx, cy){
+    var now = Date.now();
+    if (!gestureCircles || now - gestureLastCircle > gestureWindowMs || dir !== gestureDir) {
+      gestureCircles = 1;
+      gestureDir = dir;
+    } else {
+      gestureCircles += 1;
+    }
+    gestureLastCircle = now;
+    resetGestureTrail();
+
+    if (gestureCircles >= 2) {
+      pivotX = cx + window.scrollX;
+      pivotY = cy + window.scrollY;
+      pageDeg += gestureDir * 360;
+      setPageRotation(pageDeg);
+      gestureCircles = 0;
+      gestureCooldownUntil = now + 1200;
+    }
+  }
+
+  function trackGesturePoint(x, y){
+    var now = Date.now();
+    gestureTrail.push({ x: x, y: y, t: now });
+    while (gestureTrail.length && now - gestureTrail[0].t > 1100) gestureTrail.shift();
+
+    var hit = detectCircle(gestureTrail);
+    if (hit) registerCircle(hit.dir, hit.cx, hit.cy);
+  }
+
+  function canGestureFrom(el){
+    return !el.closest('input, textarea, select, model-viewer');
+  }
+
+  function triggerPageShake(){
+    if (reduce) return;
+    var root = document.documentElement;
+    root.classList.remove('is-shaking');
+    void root.offsetWidth;
+    root.classList.add('is-shaking');
+    root.addEventListener('animationend', function onEnd(){
+      root.classList.remove('is-shaking');
+      root.removeEventListener('animationend', onEnd);
+    });
+  }
+
+  function trackVerticalShake(y){
+    if (Date.now() < shakeCooldownUntil) return;
+    if (shakeLastY === undefined) { shakeLastY = y; return; }
+
+    var dy = y - shakeLastY;
+    shakeLastY = y;
+    if (Math.abs(dy) < 14) return;
+
+    var now = Date.now();
+    var dir = dy > 0 ? 1 : -1;
+    if (!shakeVertDir) {
+      shakeVertDir = dir;
+      shakeWindowStart = now;
+      shakeReversals = 0;
+      return;
+    }
+    if (dir === shakeVertDir) return;
+
+    if (now - shakeWindowStart > 420) {
+      shakeWindowStart = now;
+      shakeReversals = 0;
+    }
+    if (now - shakeLastFlip > 150) shakeReversals = 0;
+
+    shakeReversals += 1;
+    shakeLastFlip = now;
+    shakeVertDir = dir;
+
+    if (shakeReversals >= 5) {
+      triggerPageShake();
+      shakeCooldownUntil = now + 1400;
+      shakeReversals = 0;
+      shakeVertDir = 0;
+    }
+  }
+
+  if (window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('pointermove', function(e){
+      if (!canGestureFrom(e.target)) return;
+
+      var x = e.clientX, y = e.clientY;
+      trackVerticalShake(y);
+
+      if (Date.now() < gestureCooldownUntil) return;
+      if (lastSampleX !== undefined && Math.hypot(x - lastSampleX, y - lastSampleY) < 10) return;
+      lastSampleX = x;
+      lastSampleY = y;
+      trackGesturePoint(x, y);
+    }, {passive:true});
+  }
+
+  window.addEventListener('resize', function(){ setPageRotation(pageDeg); });
 })();
 </script>
 </body>
