@@ -200,7 +200,8 @@ section{padding-block:clamp(40px,6.5vw,88px);border-top:1px solid var(--hair);
   border:1px solid var(--hair)}
 .model-fig figcaption{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.11em;
   text-transform:uppercase;color:var(--slate);padding-top:.55rem;margin-top:.35rem;line-height:1.6}
-.model-fig .dl{display:flex;width:100%;margin-top:.85rem;justify-content:space-between}
+.model-fig .dl-row{margin-top:.85rem}
+.model-fig .dl{display:flex;flex:1 1 12rem;justify-content:space-between;margin-top:0}
 .video-embed{position:relative;aspect-ratio:16/9;max-width:640px;margin:1rem 0 1.25rem;
   border:1px solid var(--hair);background:var(--recess)}
 .video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -571,19 +572,29 @@ footer .authors li{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem .75
           <h4>Modelo 3D</h4>
           <figure class="model-fig">
             <model-viewer
-              src="frames/Duck.glb"
-              alt="Modelo 3D del soporte de cámaras PuDiN para Meta Quest Pro"
+              src="frames/QuestProAdapter.glb"
+              alt="Modelo 3D del soporte de cámaras PuDiN (QuestProAdapter) para Meta Quest Pro"
               camera-controls
               auto-rotate
               shadow-intensity="1"
               interaction-prompt="none"
               touch-action="none">
             </model-viewer>
-            <figcaption>Modelo 3D — arrastrar para rotar (placeholder Khronos Duck hasta publicar el soporte real)</figcaption>
-            <a class="dl" href="frames/Duck.stl" download>
-              <strong>Duck.stl</strong>
-              <em>impresión 3D</em>
-            </a>
+            <figcaption>QuestProAdapter — arrastrar para rotar</figcaption>
+            <div class="dl-row">
+              <a class="dl" href="frames/QuestProAdapter.stl" download>
+                <strong>QuestProAdapter.stl</strong>
+                <em>impresión 3D</em>
+              </a>
+              <a class="dl" href="frames/QuestProAdapter.obj" download>
+                <strong>QuestProAdapter.obj</strong>
+                <em>malla OBJ</em>
+              </a>
+              <a class="dl" href="frames/QuestProAdapter.f3d" download>
+                <strong>QuestProAdapter.f3d</strong>
+                <em>Fusion 360</em>
+              </a>
+            </div>
           </figure>
 
 
@@ -673,7 +684,7 @@ footer .authors li{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem .75
         <article class="pstep rv" id="paso-3">
           <p class="pn">Paso 3</p>
           <h3>Desplegar el pipeline en AWS</h3>
-          <p>Este paso va antes de configurar las Pi (paso 4): el despliegue crea el bucket S3 al que las Pi suben los videos, y su nombre (<code>{nombre-del-stack}-videos-{id-de-cuenta}</code>) recién existe después. Configurar las Pi primero obliga a rehacer el <span class="res">.env</span>.</p>
+          <p>Este paso va antes de configurar las Pi (paso 4): el despliegue crea el bucket S3 al que las Pi suben los videos, y su nombre (<span class="res">{nombre-del-stack}-videos-{id-de-cuenta}</span>) recién existe después. Configurar las Pi primero obliga a rehacer el <span class="res">.env</span>.</p>
           <ul class="checklist">
             <li><strong>Trámite previo, hazlo primero.</strong> Las cuentas nuevas de AWS arrancan con el límite de ejecuciones concurrentes de Lambda en 10, y con ese valor el primer despliegue falla. Pide el aumento a 1.000 por Service Quotas <em>antes</em> de desplegar; la aprobación tarda entre minutos y dos días hábiles. Las cuentas nuevas también vienen limitadas a 3.008 MB de memoria por función, lo que condiciona los parámetros de rendimiento.</li>
             <li><strong>Herramientas:</strong> AWS CLI, AWS SAM CLI y Docker corriendo. El README está escrito y probado en macOS; en Linux o Windows hay que adaptar la instalación de cada herramienta.</li>
