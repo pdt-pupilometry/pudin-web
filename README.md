@@ -1,113 +1,95 @@
-# PuDiN — página pública del proyecto
+# pudin-web
 
-Página única que documenta el sistema de medición de dilatación pupilar sobre
-Meta Quest Pro: el montaje, el pipeline de procesamiento, los resultados y la
-descarga de los pesos del modelo de segmentación.
-
-Corresponde al entregable "página web de acceso público que documenta el
-montaje y permite replicar el sistema completo".
+Repositorio de la página pública del proyecto de pupilometría sobre Meta
+Quest Pro. La descripción del sistema —qué mide, cómo replicarlo, el
+pipeline, el modelo— vive en la página misma (`index.html`), no en este
+README.
 
 ## Estructura
 
 ```
 pudin-web/
-├── index.html                     ← la página (autocontenida: imágenes embebidas)
-├── modelo/
-│   └── yolo26l-seg.pt             ← pesos entrenados, 63,5 MB
-├── assets/                        ← imágenes fuente en resolución original
+├── index.html          ← la página completa (HTML + CSS + JS inline)
+├── assets/              ← imágenes servidas por la página
 │   ├── soporte-01-isometrica.jpg
 │   ├── soporte-02-frontal.jpg
 │   ├── soporte-03-frontal-camaras.jpg
 │   ├── soporte-04-planta.jpg
 │   ├── soporte-05-isometrica-posterior.jpg
 │   └── segmentacion-panel.png
+├── LICENSE
+├── CITATION.cff
 └── README.md
 ```
 
-`index.html` no depende de `assets/`: las imágenes van embebidas en base64
-dentro del propio archivo, así que abre bien con doble click y no se rompe al
-moverlo de carpeta. `assets/` está para futuras ediciones — si querés cambiar
-una vista o recortarla, partí de ahí.
+`index.html` referencia las imágenes de `assets/` por ruta relativa (con
+`loading="lazy"` y dimensiones declaradas) — ya no van embebidas en base64.
+Los pesos del modelo tampoco viven en el repo: se descargan desde un
+[Release de GitHub](../../releases) (ver la sección "Modelo y datos" de la
+página para el enlace vigente).
 
-Lo único que `index.html` sí carga de afuera son las tipografías (Google
-Fonts) y el link de descarga de `modelo/yolo26l-seg.pt`.
+## Editar la página
 
-## Verla
+Todo el contenido, estilos y el script del medidor animado del encabezado
+están en `index.html`. Es un solo archivo; ábrelo en cualquier editor.
 
-Doble click en `index.html`. No hace falta servidor.
+Dónde está cada cosa dentro del archivo:
+
+- `<style>` — tokens de color/tipografía en `:root`, luego reglas por
+  componente (hero, tarjetas, tablas, `.pstep` de la guía, etc.).
+- Marcadores `[FALTA: …]` — información que falta completar en el contenido
+  (archivos por publicar, datos por confirmar). Se ven en la página con un
+  recuadro punteado (`.falta`) y no deben reemplazarse por texto inventado.
+- El slot del modelo 3D está comentado dentro del Paso 1 de la guía
+  (`<!-- SLOT MODELO 3D — REEMPLAZAR -->`), con el snippet de
+  `<model-viewer>` listo para pegar en cuanto exista `assets/soporte.glb`.
+
+## Verla en local
+
+```
+python3 -m http.server 8000
+```
+
+y abre `http://localhost:8000/index.html`. (Abrir el archivo con doble clic
+también funciona, pero las rutas relativas a `assets/` requieren servirlo
+desde un servidor local o Pages para evitar restricciones de `file://` en
+algunos navegadores.)
 
 ## Publicarla
 
 ### GitHub Pages (automático)
 
 Cada push a `main` dispara `.github/workflows/deploy-pages.yml`, que publica
-el sitio con [GitHub Pages](https://pages.github.com/).
+el sitio con [GitHub Pages](https://pages.github.com/). La URL queda en
+Settings → Pages.
 
-1. Crear el repo (si aún no existe) y pushear esta carpeta a la raíz de `main`.
-2. Settings → Pages → **Source: GitHub Actions** (no "Deploy from a branch").
-3. El primer deploy corre solo; la URL queda en Settings → Pages
-   (`https://<org>.github.io/pudin-web/` o el custom domain si lo configurás).
+También se puede re-disparar a mano: Actions → Deploy GitHub Pages → Run
+workflow.
 
-También se puede re-disparar a mano: Actions → Deploy GitHub Pages → Run workflow.
+### Actualizar los pesos del modelo
 
-**Ojo con los pesos.** El `.pt` pesa 63,5 MB. GitHub lo acepta (el límite duro
-por archivo es 100 MB) pero infla el repo y cada `clone` se lo lleva entero.
-Conviene colgarlo de un Release y apuntar el link ahí:
+Los pesos (`yolo26l-seg.pt`, ~63,5 MB) se publican como asset de un
+[Release](../../releases), no como archivo del repo, para no inflar cada
+`clone`. Para publicar una versión nueva:
 
-1. Releases → Draft a new release → adjuntás `yolo26l-seg.pt`.
-2. En `index.html`, buscás `href="modelo/yolo26l-seg.pt"` y lo reemplazás por
-   la URL del asset del Release.
-3. Borrás `modelo/` del repo (y del artifact de Pages).
+1. Releases → Draft a new release → adjunta el `.pt`.
+2. En `index.html`, busca `releases/download/` en la sección "Modelo y
+   datos" y actualiza la URL al asset del release nuevo.
 
 ### Cualquier hosting estático
 
 Netlify, Vercel, S3 + CloudFront, o el servidor de la universidad. Es HTML
-plano: subís la carpeta y listo.
+plano: sube `index.html` y `assets/` y listo.
 
-## Pendientes
+## Licencia y cita
 
-### 1. Modelo 3D
+- **Código** (esta página y repos del sistema): [MIT](LICENSE)
+- **Documentación, archivos 3D y pesos del modelo**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (ver nota al final de [`LICENSE`](LICENSE))
 
-Hay un espacio reservado para el visor rotable del soporte. En `index.html`
-buscá:
-
-```
-<!-- ============  SLOT MODELO 3D — REEMPLAZAR  ==========  -->
-```
-
-El comentario de ahí trae el snippet de `<model-viewer>` listo para pegar:
-exportás el soporte a `.glb`, lo dejás en la carpeta y reemplazás el
-placeholder. La alternativa sin exportar nada es pegar un `<iframe>` de
-Sketchfab.
-
-El informe promete el modelo 3D publicado junto al trabajo, así que además
-del visor conviene un link de descarga del `.stl` o `.step` — quien quiera
-replicar el montaje necesita el archivo imprimible, no solo poder girarlo en
-pantalla.
-
-### 2. Gráficos del informe (opcional)
-
-Las ilustraciones 17 y 18 (mAP50-95 por clase, y la serie temporal real de
-ambos ojos durante el estímulo fotomotor) contarían la sección de resultados
-mejor que la prosa actual.
-
-### 3. Módulo de visualización
-
-Está nombrado en la sección "El vacío" como el tercer componente del sistema,
-pero no tiene sección propia ni capturas.
+Cómo citar: [`CITATION.cff`](CITATION.cff)
 
 ## Código del sistema
 
 - Captura sobre el visor — https://github.com/pdt-pupilometry/RPi
-- Pipeline de procesamiento — https://github.com/pdt-pupilometry/AWS_fluxx
-
-## Sobre los pesos
-
-`modelo/yolo26l-seg.pt` es YOLO26l-seg entrenado sobre video de este montaje
-(cámaras GC0308 en NIR, el ángulo que impone el soporte, escala de grises).
-Dos clases: `0 = pupila`, `1 = iris`, anotadas como polígono de elipse
-completa.
-
-En producción no se usa el `.pt`: se exporta a ONNX con
-`scripts/export_model.py` del repo AWS_fluxx y el `.onnx` viaja horneado en la
-imagen de la Lambda.
+- Procesamiento en la nube — https://github.com/pdt-pupilometry/AWS_fluxx
+- Visualización — integrada en la plataforma ALFONSO en el despliegue original; no es un repo de PuDiN ni se publica aquí (ver sección “Visualización” de la página)
