@@ -165,6 +165,8 @@ section{padding-block:clamp(40px,6.5vw,88px);border-top:1px solid var(--hair);
 .shot{aspect-ratio:16/10;background:var(--recess);display:grid;place-items:center;
   overflow:hidden;border:1px solid var(--hair)}
 .shot img{max-width:100%;max-height:100%;width:auto;height:auto;display:block;mix-blend-mode:multiply}
+.shot--photo{background:var(--ink,#111)}
+.shot--photo img{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;mix-blend-mode:normal}
 .scroller figcaption{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.11em;
   text-transform:uppercase;color:var(--slate);padding-top:.55rem;margin-top:.35rem;line-height:1.6}
 .scroll-hint{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.13em;
@@ -590,7 +592,6 @@ footer .authors li{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem .75
           <p>Los imanes se instalan <strong>después de imprimir</strong>, presionados en sus alojamientos — la vista isométrica posterior muestra dónde van. Antes de fijarlos conviene probar la polaridad: si un par se repelen donde debería haber atracción, invierte uno de los imanes de ese asiento. El set de la lista de materiales del paso 2 cubre todos los puntos de fijación de la montura.</p>
 
           <h4>Vistas del soporte</h4>
-          <p class="scroll-hint">Deslízalas para recorrerlas →</p>
           <div class="scroller" tabindex="0" role="group" aria-label="Vistas del soporte de cámaras">
             <figure>
               <div class="shot"><img src="assets/soporte-01-isometrica.jpg" width="1371" height="790" loading="lazy" alt="Vista isométrica del soporte completo"></div>
@@ -651,11 +652,20 @@ footer .authors li{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem .75
             <figcaption class="caption">Pinout de referencia — GPIO14 (TX) y GPIO15 (RX) de cada Pi se cruzan hacia la otra (TX→RX, RX→TX), con un pin GND compartido entre ambas placas.</figcaption>
           </figure>
 
-          <div class="model-slot" style="aspect-ratio:4/3;margin-top:1.4rem">
-            <div>
-              <p class="eyebrow">Foto del montaje</p>
-              <p><span class="falta">[FALTA: fotografía del montaje real sobre el visor, no solo renders del soporte]</span></p>
-            </div>
+          <h4>Montaje real sobre el visor</h4>
+          <div class="scroller" tabindex="0" role="group" aria-label="Fotografías del montaje real sobre el Meta Quest Pro">
+            <figure>
+              <div class="shot shot--photo"><img src="assets/montaje/montaje_4.jpeg" width="1600" height="1200" loading="lazy" alt="Vista frontal del Meta Quest Pro con el soporte naranja impreso y las dos cámaras GC0308 montadas junto a cada lente"></div>
+              <figcaption>Frontal — el soporte impreso acoplado sobre las lentes, con una cámara GC0308 por ojo apuntando desde el borde externo</figcaption>
+            </figure>
+            <figure>
+              <div class="shot shot--photo"><img src="assets/montaje/montaje_2.jpeg" width="1600" height="1200" loading="lazy" alt="Vista de perfil del soporte impreso sobre el visor, con la cámara y su cableado siguiendo el contorno del marco"></div>
+              <figcaption>Perfil — altura que gana el soporte sobre el visor y recorrido del cable de la cámara hacia el exterior</figcaption>
+            </figure>
+            <figure>
+              <div class="shot shot--photo"><img src="assets/montaje/montaje_1.jpeg" width="1600" height="1200" loading="lazy" alt="Raspberry Pi Zero 2W con disipador y módulo X306 con celda 18650 sujetos a la diadema del visor"></div>
+              <figcaption>Electrónica en la diadema — Raspberry Pi Zero 2W sobre el módulo X306 con la celda 18650 removible</figcaption>
+            </figure>
           </div>
         </article>
 
